@@ -116,5 +116,3 @@ while True:
 
 	if host == 's' or host == 'smash.gg':
 		pass
-
-
