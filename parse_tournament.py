@@ -7,7 +7,7 @@ def prompt(type, value):
 
 db_connection = mysql.connector.connect(
 		user='root',
-		password='root',#'chunkylove69@aol.com',
+		password='root',
 		host='localhost',
 		database='MeleeData'
 	)
@@ -27,8 +27,9 @@ while True:
 			continue
 
 		data = {}
+		participants = {}
 		try:
-			for data_type, subpath in [(t, entry['id_string']+s) for t,s in [('tournament',''),('matches','/matches')]]:
+			for data_type, subpath in [(t, entry['id_string']+s) for t,s in [('tournament',''),('matches','/matches'),('participants','/participants')]]:
 				uri = 'https://api.challonge.com/v1/tournaments/'+subpath+'.json'
 				print("Contacting API at %s..." % uri)
 				response = requests.get(uri+'?api_key=XBFwcbaWSvrfHiaNONNgwyfPo8LrYozALwIWfkBd')
@@ -52,7 +53,8 @@ while True:
 
 		entry['entrants'] = data['tournament']['participants_count']
 
-		print(json.dumps(entry,indent=4))
+		#print(json.dumps(entry,indent=4))
+		#print(json.dumps(data,indent=4))
 		# id        INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 		# id_string VARCHAR(100) NOT NULL,
 		# host      VARCHAR(16)  NOT NULL,
@@ -61,13 +63,53 @@ while True:
 		# location  VARCHAR(100) NOT NULL,
 		# date      TIMESTAMP    NOT NULL
 
-		#enter into db
+		#------enter into db--------
+		#checl if tourney already has been entered in table
+		check_string = ("SELECT * FROM tournaments WHERE id_string = '" + entry['id_string'] + "';")
+		db_cursor.execute(check_string)
+		if db_cursor.fetchone() is not None:
+			print("Tournament already in table")
+			continue
+		#tourney has not been entered, insert tourney info
 		insert_string = ("INSERT INTO tournaments (id_string, host ,name ,series ,location ,date) VALUES ('" + 
 			entry['id_string'] + "', '" + entry['host'] + "', '" + entry['name'] + "', '" + entry['series'] + "', '" +
 			"MI" + "', '" + entry['date'] + "');")
 		db_cursor.execute(insert_string)
 		db_connection.commit()
 		print("Successfully inserted tournament")
+
+		#insert players into table
+		for participant in data['participants']:
+			participant = participant['participant']
+			name = participant['name']
+			if '|' in name:
+				tag = name.split('|')[1]
+				sponsor = name.split('|')[0]
+				insert_string = ("INSERT INTO players (tag, sponsor) VALUES ('" + tag + "', " + sponsor + "');")
+			else:
+				tag = name
+				sponsor = "NULL"
+				insert_string = ("INSERT INTO players (tag) VALUES ('" + tag + "');")
+			check_string = ("SELECT * FROM players WHERE tag = '" + tag + "';")
+			db_cursor.execute(check_string)
+			playerInDb = db_cursor.fetchone()
+			#check for player in db
+			if playerInDb is not None:
+				#check if sponsor needs to be updated
+				if playerInDb[2] != sponsor:
+					change_string = ("UPDATE players SET sponsor = '" + sponsor + "';")
+					db_cursor.execute(change_string)
+					db_connection.commit()
+					print("Player: " + tag + " sponsor updated to " + sponsor)
+				continue
+			
+
+			#insert player into db
+			db_cursor.execute(insert_string)
+			db_connection.commit()
+			print("Player " + tag + " inserted into db")
+
+
 
 
 
