@@ -65,16 +65,13 @@ while True:
 
 		#------enter into db--------
 		#checl if tourney already has been entered in table
-		check_string = ("SELECT * FROM tournaments WHERE id_string = '" + entry['id_string'] + "';")
-		db_cursor.execute(check_string)
+		db_cursor.execute("SELECT * FROM tournaments WHERE id_string = '%s' LIMIT 1;", (entry['id_string']))
 		if db_cursor.fetchone() is not None:
 			print("Tournament already in table")
 			continue
 		#tourney has not been entered, insert tourney info
-		insert_string = ("INSERT INTO tournaments (id_string, host ,name ,series ,location ,date) VALUES ('" + 
-			entry['id_string'] + "', '" + entry['host'] + "', '" + entry['name'] + "', '" + entry['series'] + "', '" +
-			"MI" + "', '" + entry['date'] + "');")
-		db_cursor.execute(insert_string)
+		db_cursor.execute("INSERT INTO tournaments (id_string, host ,name ,series ,location ,date) VALUES (%s, %s, %s, %s, 'MI', %s);",
+			(entry['id_string'], entry['host'], entry['name'], entry['series'], entry['date']))
 		db_connection.commit()
 		print("Successfully inserted tournament")
 
@@ -85,27 +82,27 @@ while True:
 			if '|' in name:
 				tag = name.split('|')[1]
 				sponsor = name.split('|')[0]
-				insert_string = ("INSERT INTO players (tag, sponsor) VALUES ('" + tag + "', " + sponsor + "');")
 			else:
 				tag = name
-				sponsor = "NULL"
-				insert_string = ("INSERT INTO players (tag) VALUES ('" + tag + "');")
-			check_string = ("SELECT * FROM players WHERE tag = '" + tag + "';")
-			db_cursor.execute(check_string)
-			playerInDb = db_cursor.fetchone()
+				sponsor = None
+			player_in_db = None
+			db_cursor.execute("SELECT sponsor FROM players WHERE tag = (%s) LIMIT 1;",(tag,))
+			player_in_db = db_cursor.fetchone()
 			#check for player in db
-			if playerInDb is not None:
+			if player_in_db is not None:
 				#check if sponsor needs to be updated
-				if playerInDb[2] != sponsor:
-					change_string = ("UPDATE players SET sponsor = '" + sponsor + "';")
-					db_cursor.execute(change_string)
+				if player_in_db[0] != sponsor:
+					db_cursor.execute("UPDATE players SET sponsor = '%s';", (sponsor))
 					db_connection.commit()
 					print("Player: " + tag + " sponsor updated to " + sponsor)
 				continue
 			
 
 			#insert player into db
-			db_cursor.execute(insert_string)
+			if sponsor is None:
+				db_cursor.execute("INSERT INTO players (tag) VALUES (%s);",(tag,))
+			else:
+				db_cursor.execute("INSERT INTO players (tag, sponsor) VALUES (%s, %s);", (tag, sponsor))
 			db_connection.commit()
 			print("Player " + tag + " inserted into db")
 
