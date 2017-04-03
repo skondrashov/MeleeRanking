@@ -65,7 +65,7 @@ while True:
 
 		#------enter into db--------
 		#checl if tourney already has been entered in table
-		db_cursor.execute("SELECT * FROM tournaments WHERE id_string = '%s' LIMIT 1;", (entry['id_string']))
+		db_cursor.execute("SELECT * FROM tournaments WHERE id_string = %s LIMIT 1;", (entry['id_string'],))
 		if db_cursor.fetchone() is not None:
 			print("Tournament already in table")
 			continue
