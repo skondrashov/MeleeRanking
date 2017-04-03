@@ -108,4 +108,4 @@ CREATE TABLE ratings(
     FOREIGN KEY (player_id)     REFERENCES players(id)     ON DELETE CASCADE,
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
     FOREIGN KEY (set_id)        REFERENCES sets(id)        ON DELETE CASCADE
-)
+);

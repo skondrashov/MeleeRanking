@@ -8,7 +8,7 @@ def update_scores(r1, r2, winner, tourneySize):
 	Requires: Elo ranking of player 1 and 2, a number in winner that indicates who won
 		1 for player1, 2 for player2, and the number of entrants for the tourney
 	Modifies: Nothing
-	Effects: Retunrns updated scores for r1 and r2
+	Effects: Returns updated scores for r1 and r2
 	"""
 	#simplification of current ratings
 	R1 = math.pow(10,r1/400)

@@ -27,7 +27,6 @@ while True:
 			continue
 
 		data = {}
-		participants = {}
 		try:
 			for data_type, subpath in [(t, entry['id_string']+s) for t,s in [('tournament',''),('matches','/matches'),('participants','/participants')]]:
 				uri = 'https://api.challonge.com/v1/tournaments/'+subpath+'.json'
@@ -64,13 +63,13 @@ while True:
 		# date      TIMESTAMP    NOT NULL
 
 		#------enter into db--------
-		#checl if tourney already has been entered in table
+		#check if tourney already has been entered in table
 		db_cursor.execute("SELECT * FROM tournaments WHERE id_string = %s LIMIT 1;", (entry['id_string'],))
 		if db_cursor.fetchone() is not None:
 			print("Tournament already in table")
 			continue
 		#tourney has not been entered, insert tourney info
-		db_cursor.execute("INSERT INTO tournaments (id_string, host ,name ,series ,location ,date) VALUES (%s, %s, %s, %s, 'MI', %s);",
+		db_cursor.execute("INSERT INTO tournaments (id_string, host, name, series, location ,date) VALUES (%s, %s, %s, %s, 'MI', %s);",
 			(entry['id_string'], entry['host'], entry['name'], entry['series'], entry['date']))
 		db_connection.commit()
 		print("Successfully inserted tournament")
