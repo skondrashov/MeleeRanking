@@ -1,4 +1,3 @@
-
 -- None of these tables, names, architecture is stuck in stone. It will certainly need to be adjusted given what we want to do.
 -- Here are a few thing we'd like to do using this database.
 
@@ -69,13 +68,13 @@ CREATE TABLE users(
 );
 
 CREATE TABLE tournaments(
-    id        INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id       INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     id_string VARCHAR(100) NOT NULL,
-    host      VARCHAR(16)  NOT NULL,
-    name      VARCHAR(100) NOT NULL,
-    series    VARCHAR(100),
-    location  VARCHAR(100) NOT NULL,
-    date      TIMESTAMP    NOT NULL
+    host     VARCHAR(16) NOT NULL,
+    name     VARCHAR(100) NOT NULL,
+    series   VARCHAR(100),
+    location VARCHAR(100) NOT NULL,
+    date     TIMESTAMP    NOT NULL
     /*
     -- entrants can be found with (for example):
         SELECT (COUNT(winner_id) + COUNT(loser_id)) AS entrants
@@ -109,4 +108,4 @@ CREATE TABLE ratings(
     FOREIGN KEY (player_id)     REFERENCES players(id)     ON DELETE CASCADE,
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
     FOREIGN KEY (set_id)        REFERENCES sets(id)        ON DELETE CASCADE
-);
+)
